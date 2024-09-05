@@ -1,118 +1,113 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+  NavigationState,
+  Route,
+  SceneRendererProps,
+  TabBar,
+  TabView,
+} from 'react-native-tab-view';
+import Header from './src/Components/Header';
+import { APP_TEXT } from './src/Constants/texts';
+import Home from './src/Screens/Home';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+export default function App() {
+  const initialLayout = {width: 0, height: 0};
+  const [index, setIndex] = useState<number>(0);
+  const [isDisplay, setIsDisplay] = useState<boolean>(true);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  const [routes] = useState<Route[]>([
+    {key: 'home', title: APP_TEXT.tabTitles.home},
+    {key: 'allposts', title: APP_TEXT.tabTitles.allposts},
+    {key: 'groups', title: APP_TEXT.tabTitles.groups},
+  ]);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const renderScene = ({route}: SceneRendererProps & {route: Route}) => {
+    switch (route.key) {
+      case 'home':
+        return <Home />;
+      case 'allposts':
+        return <Home />;
+      case 'groups':
+        return <Home />;
+      default:
+        return null;
+    }
   };
 
+  const searchBarHandler = () => {
+    setIsDisplay(prev => !prev);
+  };
+
+  const handleShowSearch = () => {
+    if (index > 1) {
+      return;
+    } else {
+      searchBarHandler();
+    }
+  };
+
+  useEffect(() => {
+    handleShowSearch();
+  }, [index]);
+
+  const renderTabBar = (
+    props: SceneRendererProps & {navigationState: NavigationState<Route>},
+  ) => (
+    <TabBar
+      {...props}
+      indicatorStyle={{backgroundColor: 'black'}}
+      style={styles.tabBar}
+      labelStyle={styles.tabLabel}
+      tabStyle={styles.tab}
+      renderLabel={({route, focused}) => (
+        <Text style={[styles.tabLabel, {color: focused ? 'black' : 'grey'}]}>
+          {route.title}
+        </Text>
+      )}
+    />
+  );
+
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
+    <SafeAreaView style={styles.container}>
+      <View style={{flex: 1}}>
         <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+        <TabView
+          navigationState={{index, routes}}
+          renderScene={renderScene}
+          renderTabBar={renderTabBar}
+          onIndexChange={setIndex}
+          initialLayout={initialLayout}
+          style={styles.tabView}
+        />
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  tabView: {
+    flex: 1,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  tabBar: {
+    backgroundColor: 'white',
+    borderBottomColor: 'grey',
+    borderBottomWidth: 1,
+    elevation: 0,
+    shadowOpacity: 0,
   },
-  highlight: {
-    fontWeight: '700',
+  tabLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    textTransform: 'capitalize',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    margin: 0,
   },
 });
-
-export default App;
